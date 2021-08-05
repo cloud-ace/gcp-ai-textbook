@@ -1,0 +1,16 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+tensorflow = "==1.15.0"
+pandas = "==1.2.2"
+apache-beam = { extras = ["gcp"], version = "*" }
+pillow = "*"
+gcsfs = "*"
+
+[requires]
+python_version = "3.8"

@@ -1,0 +1,10 @@
+item {
+  name: "Basketball Shooter"
+  id: 1
+  display_name: "Basketball Shooter"
+}
+item {
+  name: "Shoot Defender"
+  id: 2
+  display_name: "Shoot Defender"
+}

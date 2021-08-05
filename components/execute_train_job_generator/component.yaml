@@ -1,0 +1,46 @@
+name: execute-train-job-generator
+description: Object Detectionの訓練ジョブをAI Platformに投げる
+inputs:
+  - {name: Project ID, type: GCPProjectID , description: 'GCP project id'}
+  - {name: Config File Path, type: String, description: 'AI Platform learning settings (machine specifications, number of masters and workers, etc.)'}
+  - {name: AI Platform Region, type: String, description: 'AI Platform train job execute region.'}
+  - {name: AI Platform Job Directory, type: String, description: 'AI Platform job files dir.'}
+  - {name: AI Platform Job Name, type: String, description: "AI Platform train job name. You can restart the checkpoint once you specify the previous job name."}
+  - {name: AI Platform Model Dir Name, type: String, description: 'Path to the model being trained by the user.'}
+  - {name: Number Of Classes, type: String, description: 'Number of classes (Train and validation are same) .'}
+  - {name: Label Map Path, type: String , description: 'Label map path (`pbtxt` format).'}
+  - {name: TFRecord Input Path For Train, type: String, description: 'Tf record files path in GCS. For Train.'}
+  - {name: TFRecord Input Path For Eval, type: String, description: 'Tf record files path in GCS. For Evaluation.'}
+  - {name: Batch Size, type: String, description: 'Training batch size. The larger the batch size, the faster the learning. However, it is easy to run out of memory.'}
+  - {name: Training Steps, type: String, description: "Set train steps. If more train needs, up this param. Default 100 is for testing, very small."}
+  - {name: Number of Samples In Eval, type: String, description: 'Number of samples for evaluation.'}
+  - {name: Pretrained Model, type: String, description: 'ssd_mobilenet_v2_oid_v4_2018_12_12'}
+  - {name: Quantization, type: Bool, description: 'Whether to perform int8 quantization'}
+  - {name: Image Uri, type: String, description: 'AI Platform training custom container image uri on Container Registry.'}
+outputs:
+  - {name: Config File Path, type: String, description: 'Path for Configuration of Model.'}
+  - {name: Checkpoints Directory Path, type: String, description: 'Path where check points are.'}
+implementation:
+  container:
+    image: gcr.io/ai-shoseki-ai-platform/execute_train_job_generator:latest-1.15.2-py3
+    command: [
+      python3, /pipelines/component/src/models/research/main.py,
+      --project_id, {inputValue: Project ID},
+      --ai_platform_job_region, {inputValue: AI Platform Region},
+      --ai_platform_job_dir_path, {inputValue: AI Platform Job Directory},
+      --job_name, {inputValue: AI Platform Job Name},
+      --model_dir, {inputValue: AI Platform Model Dir Name},
+      --num_classes, {inputValue: Number Of Classes},
+      --label_map_path, {inputValue: Label Map Path},
+      --tf_record_input_path_train, {inputValue: TFRecord Input Path For Train},
+      --tf_record_input_path_eval, {inputValue: TFRecord Input Path For Eval},
+      --eval_config_num_examples, {inputValue: Number of Samples In Eval},
+      --train_config_batch_size, {inputValue: Batch Size},
+      --num_train_steps, {inputValue: Training Steps},
+      --cloud_yaml_config_path, {inputValue: Config File Path},
+      --pre_trained_model_name, {inputValue: Pretrained Model},
+      --quantization, {inputValue: Quantization},
+      --image_uri, {inputValue: Image Uri},
+      --config_file_path, {outputPath: Config File Path},
+      --checkpoints_path, {outputPath: Checkpoints Directory Path}
+    ]

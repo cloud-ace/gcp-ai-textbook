@@ -1,0 +1,10 @@
+*\.tar\.gz
+.idea/
+.pytest_cache/*
+components/tests/*/test_data/*/output/*
+components/*/execute_job.sh
+nohup.out
+.python-version
+components/tests/.pytest_cache/**
+components/.DS_Store
+components/*/.DS_Store

@@ -1,0 +1,60 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  id : build datalabeling_service_to_tfrecord_generator image
+  args: [ 'build',
+          '-t',
+          'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_TFRECORD}:latest',
+          '-f',
+          '${_COMPONENT_NAME_TFRECORD}/Dockerfile',
+          '${_COMPONENT_NAME_TFRECORD}'
+        ]
+  waitFor: ['-']
+- name: 'gcr.io/cloud-builders/docker'
+  id : build execute_train_job_generator of CPU image
+  args: [ 'build',
+          '--build-arg',
+          'USE_IMAGE_TAG=${_USE_IMAGE_TAG_CPU}',
+          '-t',
+          'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_TRAIN}:latest-${_USE_IMAGE_TAG_CPU}',
+          '-f',
+          '${_COMPONENT_NAME_TRAIN}/Dockerfile',
+          '${_COMPONENT_NAME_TRAIN}'
+        ]
+  waitFor: ['-']
+- name: 'gcr.io/cloud-builders/docker'
+  id : build execute_train_job_generator of GPU image
+  args: [ 'build',
+          '--build-arg',
+          'USE_IMAGE_TAG=${_USE_IMAGE_TAG_GPU}',
+          '-t',
+          'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_TRAIN}:latest-${_USE_IMAGE_TAG_GPU}',
+          '-f',
+          '${_COMPONENT_NAME_TRAIN}/Dockerfile',
+          '${_COMPONENT_NAME_TRAIN}'
+        ]
+  waitFor: ['-']
+- name: 'gcr.io/cloud-builders/docker'
+  id : build model_compile_generator of CPU image
+  args: [ 'build',
+          '--build-arg',
+          'USE_IMAGE_TAG=${_USE_IMAGE_TAG_CPU}',
+          '-t',
+          'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_COMPILE}:latest-${_USE_IMAGE_TAG_CPU}',
+          '-f',
+          '${_COMPONENT_NAME_COMPILE}/Dockerfile',
+          '${_COMPONENT_NAME_COMPILE}'
+        ]
+  waitFor: ['-']
+substitutions:
+  _USE_IMAGE_TAG_CPU: 1.15.2-py3 # default value
+  _USE_IMAGE_TAG_GPU: 1.15.2-gpu-py3 # default value
+  _COMPONENT_NAME_TFRECORD: datalabeling_service_to_tfrecord_generator # default value
+  _COMPONENT_NAME_TRAIN: execute_train_job_generator # default value
+  _COMPONENT_NAME_COMPILE: model_compile_generator # default value
+images: [
+        'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_TFRECORD}:latest',
+        'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_TRAIN}:latest-${_USE_IMAGE_TAG_CPU}',
+        'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_TRAIN}:latest-${_USE_IMAGE_TAG_GPU}',
+        'gcr.io/$PROJECT_ID/${_COMPONENT_NAME_COMPILE}:latest-${_USE_IMAGE_TAG_CPU}'
+        ]
+timeout: 3600s
