@@ -1,0 +1,16 @@
+curl -X POST \
+    -H "Authorization: Bearer $(gcloud auth application-default print-access-token)" \
+    -H "Content-Type: application/json" \
+    -d '{
+        "inputConfig": {
+             "bigquerySource": {
+                 "inputUri": "bq://<プロジェクトID>.automl_tables_data.noaa_gsod_pred"
+              },
+         },
+         "outputConfig": {
+             "bigqueryDestination": {
+                  "outputUri": "bq://<プロジェクトID>"
+              },
+         },
+    }' \
+    https://automl.googleapis.com/v1beta1/projects/<プロジェクトID>/locations/us-central1/models/<TBLから始まるモデルID>:batchPredict
