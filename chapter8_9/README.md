@@ -6,7 +6,7 @@
 
 * Dataflow
 * Google Container Registry
-* Cloud Build  
+* Cloud Build
 * AI Platform
 * Data Labeling Service
 
@@ -16,14 +16,11 @@
 ```
 $ export PROJECT_ID=${your-gcp-project}
 $ gcloud config set project ${PROJECT_ID}
-$ gcloud beta auth application-default login
-```
-
-環境変数 `CLOUDSDK_CONFIG` が適切に設定されていること
-
-```shell script
 $ export CLOUDSDK_CONFIG=$HOME/.config/gcloud/
+$ gcloud beta auth application-default login
+$ gcloud auth login
 ```
+
 
 ## 2. コンテナのビルド
 
