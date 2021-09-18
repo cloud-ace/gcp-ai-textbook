@@ -1,0 +1,28 @@
+name: datalabeling-service-to-tfrecordgenerator
+description: データラベリングサービスを利用してtfrecordを生成する
+inputs:
+  - {name: Project ID, type: GCPProjectID , description: "GCP Project id "}
+  - {name: Apache Beam Runner, type: String, description: "Execute type local or Dataflow. select in [DirectRunner, DataflowRunner]."}
+  - {name: Dataflow Region, type: String, description: "Dataflow job execute region."}
+  - {name: Dataflow Job Directory, type: String, description: "Dataflow job dir in gcs."}
+  - {name: Datalabeling Service Annotation File Path, type: String , description: "Datalabeling service annotated file path (GCS). Must be json."}
+  - {name: Label Names List File Path , type: String, description: "Label names list text file path (GCS)."}
+  - {name: Validation Set Rate, type: String, description: "Train and validation split rate. This param is validation set rate."}
+  - {name: TFRecord Output Dir, type: String, description: "Tfrecord output dir (GCS)."}
+outputs:
+  - {name: Output GCS Path, type: String, description: "Tfrecord output dir(GCS) is stored in this file."}
+implementation:
+  container:
+    image: gcr.io/${your-gcp-project}/datalabeling_service_to_tfrecord_generator:latest
+    command: [
+      python3, /pipelines/component/src/main.py,
+      --runner, {inputValue: Apache Beam Runner},
+      --project_id, {inputValue: Project ID},
+      --dataflow_region, {inputValue: Dataflow Region},
+      --dataflow_job_dir, {inputValue: Dataflow Job Directory},
+      --datalabeling_service_annotation_file_path, {inputValue: Datalabeling Service Annotation File Path},
+      --validation_set_rate, {inputValue: Validation Set Rate},
+      --label_names_list_file_path, {inputValue: Label Names List File Path},
+      --tfrecord_output_dir, {inputValue: TFRecord Output Dir},
+      --file_name_output_gcs_path, {outputPath: Output GCS Path}
+    ]
