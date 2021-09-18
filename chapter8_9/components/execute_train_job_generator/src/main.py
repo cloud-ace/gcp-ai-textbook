@@ -275,7 +275,7 @@ class ExecuteTrainJobGenerator:
                                 f"{job_name}_{self._output_version}/" \
                                 f"{pre_trained_model_name}/pipeline_new.config"
 
-        cmd = f"""gcloud ai-platform jobs submit training 
+        cmd = f"""gcloud ai-platform jobs submit training \
         {job_name}_{self._output_version} \
             --region={ai_platform_job_region} \
             --config={cloud_yaml_config_path} \

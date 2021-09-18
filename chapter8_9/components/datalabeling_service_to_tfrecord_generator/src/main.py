@@ -142,85 +142,96 @@ class DatalabelingServiceToTfrecordGenerator:
 
     def _create_tf_example(self, element):
         """
-
+    ​
         tf.Exampleを作成する
-
+    ​
         Args:
             element (json): アノテーションデータ（データラベリングサービス）の1レコード
             （image_uriとannotationsのみ）
-
+    ​
         Returns: tf.Example
-
+    ​
         """
         # importはBeamのmap関数の中で行う
         import tensorflow as tf
         from PIL import Image
-
+    ​
         try:
-
+    ​
             if element["image_uri"].split(".")[-1] != "jpg":
                 self._logger.info(f"not jpg file: {element['image_uri']}")
                 return
-
+    ​
             self._logger.info(f"create_tf_example: {element}")
-
+    ​
+            # ①
             f = tf.io.gfile.GFile(element["image_uri"], 'rb')
+            # ②
             im = Image.open(f)
-            # Image height
+    ​
+            # 画像(Image)の高さを定義する
             height = im.height
-            # Image width
+            # 画像の幅を定義する
             width = im.width
-            # Filename of the image. Empty if image is not from file
+            # 画像のファイル名を定義する。もし画像がファイルになければ空文字を入力
             filename = element["image_uri"].encode(
                 'utf-8')
+            # ③
             img_data = tf.io.gfile.GFile(element["image_uri"], 'rb').read()
-
-            # List of normalized left x coordinates in bounding box (1 per box)
+    ​
+            # バウンディングボックス内ごとの正規化されたX座標の最小値リスト
+            # （ボックスごとに1つ）
             xmins = [
                 x["annotation_value"]["image_bounding_poly_annotation"][
                     "normalized_bounding_poly"]["normalized_vertices"][
                     0].get("x", 0) for x in
                 element[
                     "annotations"]]
-
-            # List of normalized right x coordinates in bounding box (1 per box)
+    ​
+            # バウンディングボックス内ごとの正規化されたX座標の最大値のリスト
+            # （ボックスごとに1つ）
             xmaxs = [
                 x["annotation_value"]["image_bounding_poly_annotation"][
                     "normalized_bounding_poly"]["normalized_vertices"][
                     1].get("x", 0) for x in
                 element[
                     "annotations"]]
-
-            # List of normalized top y coordinates in bounding box (1 per box)
+    ​
+            # バウンディングボックス内ごとの正規化されたY座標の最小値のリスト
+            # （ボックスごとに1つ）
             ymins = [
                 x["annotation_value"]["image_bounding_poly_annotation"][
                     "normalized_bounding_poly"]["normalized_vertices"][
                     0].get("y", 0) for x in
                 element[
                     "annotations"]]
-
-            # List of normalized bottom y coordinates in bounding box (1 per box)
+    ​
+            # バウンディングボックス内ごとの正規化されたY座標の最大値のリスト
+            # （ボックスごとに1つ）
             ymaxs = [
                 x["annotation_value"]["image_bounding_poly_annotation"][
                     "normalized_bounding_poly"]["normalized_vertices"][
                     1].get("y", 0) for x in
                 element[
                     "annotations"]]
-
-            # List of string class name of bounding box (1per box)
+    ​
+            # バウンディングボックスのStringクラス名のリスト
+            # （ボックスごとに1つ）
             classes_text = [
                 x["annotation_value"]["image_bounding_poly_annotation"][
                     "annotation_spec"]["display_name"].encode('utf-8')
                 for x in element[
                     "annotations"]]
-
-            # List of integer class id of bounding box (1per box)
+    ​
+            # バウンディングボックスのinteger class idのリスト
+            # （ボックスごとに1つ）
             classes = [self._label_names_list.index(
                 x["annotation_value"]["image_bounding_poly_annotation"][
                     "annotation_spec"]["display_name"]) for x in
                 element[
                     "annotations"]]
-
+    ​
+            # ④、⑤
             tf_example = tf.train.Example(features=tf.train.Features(feature={
                 'image/height': tf.train.Feature(
                     int64_list=tf.train.Int64List(value=[height])),
@@ -247,8 +258,9 @@ class DatalabelingServiceToTfrecordGenerator:
                 'image/object/class/label': tf.train.Feature(
                     int64_list=tf.train.Int64List(value=classes)),
             }))
+            # ⑥
             return tf_example.SerializeToString()
-
+    ​
         except Exception as ex:
             self._logger.info('Exception: %s Element: %s', ex, element)
             raise
