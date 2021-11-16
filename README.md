@@ -1,3 +1,3 @@
 # gcp-ai-textbook
 
-GCPの教科書Ⅲ-AIシステム開発編の補助リポジトリ
+GCPの教科書III【Cloud AIプロダクト編】-補助リポジトリ
